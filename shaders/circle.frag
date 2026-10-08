@@ -7,7 +7,7 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
   // TODO(TASK 1a)
-  vec2 uv = vec2(0.0);
+  vec2 uv = gl_FragCoord.xy / u.resolution;
 
   // TODO(TASK 1b)
   vec2 p = vec2(0.0);
