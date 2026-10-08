@@ -8,3 +8,4 @@ external/stb/*.h
 *.spv
 report/
 .DS_Store
+.cache/

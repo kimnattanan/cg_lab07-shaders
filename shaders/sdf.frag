@@ -2,6 +2,7 @@
 #extension GL_GOOGLE_include_directive : require
 
 #include <toy.glsl>
+// #include <iostream>
 
 layout(location = 0) out vec4 outColor;
 
@@ -24,22 +25,31 @@ vec2 ball_center() {
 
 // TODO(TASK 3a)
 float sdf_box(vec2 p, vec2 hs) {
-  return 1.0;
+  vec2 q = abs(p) - hs;
+  // outside dist (from edge or corner) + inside dist (from edge)
+  return length(max(q,0.0)) + min(max(q.x,q.y),0.0);
 }
 
 // TODO(TASK 3b)
 float sdf_rounded_box(vec2 p, vec2 hs, float r) {
-  return 1.0;
+  return sdf_box(p,hs-r)-r; // corner radius = r
 }
 
 // TODO(TASK 3c)
 float op_smooth_union(float d1, float d2, float k) {
-  return op_union(d1, d2);
+  float h = clamp(0.5 + 0.5*(d2-d1)/k, 0.0, 1.0);
+  return mix(d2,d1,h) - k*h*(1.0-h);
 }
 
+
 // TODO(TASK 3d)
+
 float scene(vec2 p) {
-  return 1.0;
+  float body = sdf_rounded_box(p - vec2(-0.35,0.0), vec2(0.40,0.25), 0.08); // dist from box edge
+  float ball = sdf_circle(p - ball_center(), 0.30); // dist from ball edge
+  float d = op_smooth_union(body, ball, 0.20); // apply something when 2 dists within k
+  float hole = sdf_circle(p - vec2(-0.35,0.0), 0.12); // dist from hole edge
+  return op_subtract(d, hole);
 }
 
 void main() {
@@ -50,6 +60,8 @@ void main() {
   vec3 col = vec3(0.0);
   if (u.mode == 0u) {
     // TODO(TASK 3e)
+    float edge = smoothstep(w,-w,d);
+    col = mix(vec3(0.0),vec3(0.9,0.5,0.2),edge);
   }
   else if (u.mode == 1u) col = contours(d);
   else if (u.mode == 2u) col = vec3(clamp(d * 0.5 + 0.5, 0.0, 1.0));

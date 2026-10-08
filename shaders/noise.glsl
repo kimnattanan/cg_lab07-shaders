@@ -11,12 +11,29 @@ float hash(uvec2 p) { return float(pcg(p.x ^ pcg(p.y))) / 4294967296.0; }
 
 // TODO(TASK 2a)
 float value_noise(vec2 p) {
-  return 0.0;
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  uvec2 g = uvec2(ivec2(i)+1000);
+  float a = hash(g);
+  float b = hash(g + uvec2(1u,0u));
+  float c = hash(g + uvec2(0u,1u));
+  float d = hash(g + uvec2(1u,1u));
+  vec2 w = f*f*(3.0 - 2.0*f);
+  return mix(mix(a,b,w.x), mix(c,d,w.x), w.y);
 }
+
 
 // TODO(TASK 2b)
 float fbm(vec2 p, uint octaves) {
-  return 0.0;
+  float sum = 0.0;
+  float amp = 0.5;
+  float freq = 1.0;
+  for(uint i=0u; i<octaves; ++i) {
+    sum += amp * value_noise(p*freq);
+    amp *= 0.5;
+    freq *= 2.0;
+  }
+  return sum;
 }
 
 #endif
